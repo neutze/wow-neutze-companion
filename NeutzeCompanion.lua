@@ -127,7 +127,7 @@ f:SetScript("OnEvent", function(_, e, unit)
   if e == "UNIT_SPELLCAST_STOP" and unit ~= "player" then return end
   if (e == "PLAYER_ENTERING_WORLD" and not NC.macroDone) or (e == "PLAYER_REGEN_ENABLED" and NC.macroPending) then
     NC.macroDone, NC.macroPending = true, false
-    if C_Timer and NC.WriteMacro then C_Timer.After(3, NC.WriteMacro) end   -- keep the "Companion" macro current
+    if C_Timer and NC.WriteMacro then C_Timer.After(3, NC.WriteMacro) end   -- keep the "NPcoPet" macro current
   end
   Soon(e == "PLAYER_ENTERING_WORLD" and 4 or 1.5)
 end)
@@ -138,8 +138,8 @@ local panel = CreateFrame("Frame")
 panel.name = "Neutze's Companion"
 local status, box
 
--- ---------- character macro "Companion" (so the pet shows on your bar) ----------
-local MACRO = "Companion"
+-- ---------- character macro "NPcoPet" (so the pet shows on your bar) ----------
+local MACRO = "NPcoPet"            -- NP + module code, like the Pantry macros; was "Companion" before 0.0.2
 local function PetIcon(pet)
   if pet.guid and C_PetJournal and C_PetJournal.GetPetInfoByPetID then
     local icon = select(9, C_PetJournal.GetPetInfoByPetID(pet.guid))
@@ -163,14 +163,15 @@ end
 local function WriteMacro(pet)
   if not pet or not CreateMacro then return nil end
   if InCombatLockdown() then NC.macroPending = true; return "Macro updates after combat." end
+  NeutzePantry.RenameMacro("Companion", MACRO, function(b) return b:find("SummonPetByGUID", 1, true) or b:find("CallCompanion", 1, true) end, true)
   local idx = GetMacroIndexByName(MACRO)
   if idx and idx > 0 then EditMacro(idx, MACRO, PetIcon(pet), MacroBody(pet)); return nil end
   local _, perChar = GetNumMacros()
   if perChar and perChar >= (MAX_CHARACTER_MACROS or 18) then
-    return "|cffff5555Character macro tab is full|r - free a slot for the \"Companion\" macro."
+    return "|cffff5555Character macro tab is full|r - free a slot for the \"NPcoPet\" macro."
   end
   CreateMacro(MACRO, PetIcon(pet), MacroBody(pet), true)
-  return "Macro |cffffd200Companion|r created on the character tab - drag it to your bar."
+  return "Macro |cffffd200NPcoPet|r created on the character tab - drag it to your bar."
 end
 NC.WriteMacro = function() return WriteMacro(FindPet(DB().name)) end
 
@@ -285,7 +286,7 @@ local function StatusText()
   if not d.name or d.name == "" then return "No companion set for this character." end
   local pet = FindPet(d.name)
   if not pet then return "|cffff5555Not found|r in your pet journal." end
-  return "|cff33ff33Found:|r " .. pet.name .. "  " .. (NC.lastNote or "Character macro |cffffd200Companion|r summons it.")
+  return "|cff33ff33Found:|r " .. pet.name .. "  " .. (NC.lastNote or "Character macro |cffffd200NPcoPet|r summons it.")
 end
 NeutzePantry.RegisterSection({ display = 90, order = 900, title = "Companion (Neutze's Companion)", height = 62,
   custom = function(parent, anchor)
