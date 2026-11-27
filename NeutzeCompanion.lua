@@ -279,22 +279,3 @@ SlashCmdList.NEUTZECOMPANION = function(msg)
   end
   OpenPanel()
 end
-
--- ---------- field at the end of the Neutze's Pantry panel ----------
-local function StatusText()
-  local d = DB()
-  if not d.name or d.name == "" then return "No companion set for this character." end
-  local pet = FindPet(d.name)
-  if not pet then return "|cffff5555Not found|r in your pet journal." end
-  return "|cff33ff33Found:|r " .. pet.name .. "  " .. (NC.lastNote or "Character macro |cffffd200NPcoPet|r summons it.")
-end
-NeutzePantry.RegisterSection({ display = 90, order = 900, title = "Companion (Neutze's Companion)", height = 62,
-  custom = function(parent, anchor)
-    return NeutzePantry.FieldRow(parent, anchor, {
-      label = "Companion pet for this character - summoned again whenever no pet is out:",
-      get = function() return DB().name end,
-      set = function(text) SetPet(text); return StatusText() end,
-      status = StatusText,
-      button = "Use current pet", current = CurrentPetName, noCurrent = "Summon a pet first, then click this.",
-    })
-  end })
