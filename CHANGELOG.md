@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- The pet field is no longer repeated in Pantry's panel. Its page under Neutze's Pantry is the place for it.
 - The character macro is now called **NPcoPet** (NP + module code, like the Pantry macros). Your old "Companion" macro is renamed on login and stays on your bars.
 - Now requires Neutze's Pantry. The options page moved under Options > AddOns > Neutze's Pantry.
 
