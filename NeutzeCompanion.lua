@@ -136,7 +136,7 @@ if C_Timer and C_Timer.NewTicker then C_Timer.NewTicker(5, function() NC.Check()
 -- ---------- options panel ----------
 local panel = CreateFrame("Frame")
 panel.name = "Neutze's Companion"
-local category, status, box
+local status, box
 
 -- ---------- character macro "Companion" (so the pet shows on your bar) ----------
 local MACRO = "Companion"
@@ -264,12 +264,8 @@ panel:SetScript("OnShow", function(self)
   SetPet(DB().name)
 end)
 
-if Settings and Settings.RegisterCanvasLayoutCategory and Settings.RegisterAddOnCategory then
-  category = Settings.RegisterCanvasLayoutCategory(panel, panel.name)
-  Settings.RegisterAddOnCategory(category)
-elseif InterfaceOptions_AddCategory then
-  InterfaceOptions_AddCategory(panel)
-end
+-- options page under Neutze's Pantry (Options > AddOns > Neutze's Pantry > Neutze's Companion)
+local OpenPanel = NeutzePantry.AddSubPage(panel)
 
 SLASH_NEUTZECOMPANION1 = "/nc"
 SLASH_NEUTZECOMPANION2 = "/companion"
@@ -280,27 +276,24 @@ SlashCmdList.NEUTZECOMPANION = function(msg)
     print(PREFIX .. (pet and ("companion set to " .. pet.name .. ".") or ("no pet called \"" .. msg .. "\" in your pet journal.")))
     return
   end
-  if category and Settings and Settings.OpenToCategory then Settings.OpenToCategory(category:GetID())
-  elseif InterfaceOptionsFrame_OpenToCategory then InterfaceOptionsFrame_OpenToCategory(panel); InterfaceOptionsFrame_OpenToCategory(panel) end
+  OpenPanel()
 end
 
 -- ---------- field at the end of the Neutze's Pantry panel ----------
-if NeutzePantry and NeutzePantry.RegisterSection and NeutzePantry.FieldRow then
-  local function StatusText()
-    local d = DB()
-    if not d.name or d.name == "" then return "No companion set for this character." end
-    local pet = FindPet(d.name)
-    if not pet then return "|cffff5555Not found|r in your pet journal." end
-    return "|cff33ff33Found:|r " .. pet.name .. "  " .. (NC.lastNote or "Character macro |cffffd200Companion|r summons it.")
-  end
-  NeutzePantry.RegisterSection({ display = 90, order = 900, title = "Companion (Neutze's Companion)", height = 62,
-    custom = function(parent, anchor)
-      return NeutzePantry.FieldRow(parent, anchor, {
-        label = "Companion pet for this character - summoned again whenever no pet is out:",
-        get = function() return DB().name end,
-        set = function(text) SetPet(text); return StatusText() end,
-        status = StatusText,
-        button = "Use current pet", current = CurrentPetName, noCurrent = "Summon a pet first, then click this.",
-      })
-    end })
+local function StatusText()
+  local d = DB()
+  if not d.name or d.name == "" then return "No companion set for this character." end
+  local pet = FindPet(d.name)
+  if not pet then return "|cffff5555Not found|r in your pet journal." end
+  return "|cff33ff33Found:|r " .. pet.name .. "  " .. (NC.lastNote or "Character macro |cffffd200Companion|r summons it.")
 end
+NeutzePantry.RegisterSection({ display = 90, order = 900, title = "Companion (Neutze's Companion)", height = 62,
+  custom = function(parent, anchor)
+    return NeutzePantry.FieldRow(parent, anchor, {
+      label = "Companion pet for this character - summoned again whenever no pet is out:",
+      get = function() return DB().name end,
+      set = function(text) SetPet(text); return StatusText() end,
+      status = StatusText,
+      button = "Use current pet", current = CurrentPetName, noCurrent = "Summon a pet first, then click this.",
+    })
+  end })
