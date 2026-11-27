@@ -1,0 +1,11 @@
+package-as: NeutzeCompanion
+
+ignore:
+  - README.md
+  - .github
+  - art
+  - screenshots
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
